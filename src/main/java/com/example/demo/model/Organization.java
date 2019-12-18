@@ -17,6 +17,7 @@ import org.hibernate.annotations.TypeDef;
 import org.hibernate.annotations.TypeDefs;
 import org.springframework.data.jpa.domain.support.AuditingEntityListener;
 
+import com.example.demo.model.common.BaseEntity;
 import com.fasterxml.jackson.annotation.JsonFormat;
 
 import io.swagger.annotations.ApiModel;
@@ -29,6 +30,11 @@ import io.swagger.annotations.ApiModelProperty;
 @EntityListeners(AuditingEntityListener.class)
 @TypeDefs({ @TypeDef(name = "AddressDetailsType", typeClass = AddressDetailsType.class) })
 public class Organization extends BaseEntity implements Serializable {
+
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
 	@Column(name = "organization_name")
 	@ApiModelProperty(notes = "Name of the Organization")

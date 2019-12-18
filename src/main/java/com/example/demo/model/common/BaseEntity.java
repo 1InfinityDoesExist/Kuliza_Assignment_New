@@ -1,4 +1,4 @@
-package com.example.demo.model;
+package com.example.demo.model.common;
 
 import java.io.Serializable;
 import java.time.LocalDateTime;
@@ -25,7 +25,6 @@ public class BaseEntity implements Serializable {
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	@Column(name = "s_n")
 	@ApiModelProperty(notes = "Primary Key For The Particular Class")
 	private Long id;
 

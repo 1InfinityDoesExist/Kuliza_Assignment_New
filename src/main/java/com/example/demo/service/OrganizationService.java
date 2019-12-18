@@ -21,8 +21,8 @@ public class OrganizationService {
 	@Autowired
 	private OrganizationRepository organizationRepository;
 
-	@Transactional
-	public Organization createOrganization(@Valid Organization org) {
+	
+	public Organization createOrganization(Organization org) {
 		// TODO Auto-generated method stub
 		try {
 

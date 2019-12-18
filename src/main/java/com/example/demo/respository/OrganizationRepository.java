@@ -2,13 +2,12 @@ package com.example.demo.respository;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.CrudRepository;
 import org.springframework.stereotype.Repository;
 
 import com.example.demo.model.Organization;
 
 @Repository
-public interface OrganizationRepository extends JpaRepository<Organization, Long>, CrudRepository<Organization, Long> {
+public interface OrganizationRepository extends JpaRepository<Organization, Long> {
 
 	@Query("Select Organization from #{#entityName} Organization where phoneNumber = ?1 and isDeleted=false")
 	public Organization getOrgByPhone(String phoneNumber);

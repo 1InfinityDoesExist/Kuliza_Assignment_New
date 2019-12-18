@@ -2,6 +2,9 @@ package com.example.demo.model;
 
 import java.io.Serializable;
 
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
+
+@JsonIgnoreProperties(ignoreUnknown = true)
 public class Address implements Serializable {
 	private String addressLine1;
 	private String addressLine2;
