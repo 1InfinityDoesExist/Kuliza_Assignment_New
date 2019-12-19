@@ -1,28 +1,26 @@
 package com.example.demo.controller;
 
+import java.io.FileWriter;
+
 import javax.validation.Valid;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.model.Organization;
-import com.example.demo.respository.OrganizationRepository;
 import com.example.demo.service.MapStateToError;
 import com.example.demo.service.OrganizationService;
+import com.google.gson.Gson;
 
 import io.swagger.annotations.Api;
-import io.swagger.annotations.ApiOperation;
 
 @RestController
 @RequestMapping(path = "/api/object/org")
@@ -32,8 +30,6 @@ public class OrganizationController {
 	private static final Logger logger = LoggerFactory.getLogger(OrganizationController.class);
 
 	@Autowired
-	private OrganizationRepository organizationRepository;
-	@Autowired
 	private OrganizationService organizationService;
 
 	@Autowired
@@ -42,7 +38,7 @@ public class OrganizationController {
 	@PostMapping(path = "/create")
 	public ResponseEntity<?> storeOrganizationDetials(@Valid @RequestBody Organization org,
 			BindingResult bindingResult) {
-		
+
 		ResponseEntity<?> errorMap = mapStateToError.errorMapState(bindingResult);
 		if (errorMap != null) {
 			return errorMap;
@@ -50,10 +46,14 @@ public class OrganizationController {
 		Organization orgToDB1 = organizationService.createOrganization(org);
 
 		logger.info("Organization log - " + orgToDB1);
-		//System.out.println("coming");
-//		System.out.println(organizationRepository.findById(orgToDB.getId()));
+		System.out.println("coming");
+
 		logger.info("Coming");
-		return new ResponseEntity<Organization>(orgToDB1, HttpStatus.OK);
+
+		Gson gson = new Gson();
+		String jsonInString = gson.toJson(orgToDB1);
+
+		return new ResponseEntity<String>(jsonInString, HttpStatus.OK);
 
 	}
 
