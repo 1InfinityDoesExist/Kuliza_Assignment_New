@@ -23,7 +23,7 @@ public class OrganizationService {
 		try {
 
 			Organization duplicateCheck = organizationRepository.duplicateCheck(org.getEmail(), org.getPhoneNumber(),
-					org.getWebsite());
+					org.getWebsite(), false);
 			if (duplicateCheck != null) {
 				throw new BaseException("Duplicate Value Found");
 			}

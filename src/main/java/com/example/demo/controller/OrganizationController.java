@@ -11,7 +11,6 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.BindingResult;
 import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -29,7 +28,7 @@ import io.swagger.annotations.ApiParam;
 
 @RestController
 @RequestMapping(path = "/api/object/org")
-@Api(value = "/api/object/org", description = "Organization Operations")
+@Api(value = "/api/object/org", description = "Organization Crud Operation")
 public class OrganizationController {
 
 	private static final Logger logger = LoggerFactory.getLogger(OrganizationController.class);
@@ -40,7 +39,9 @@ public class OrganizationController {
 	@Autowired
 	private MapStateToError mapStateToError;
 
-	@PostMapping(path = "/create")
+	@RequestMapping(path = "/create", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
+	@ResponseBody
+	@ApiOperation(value = "Create Organization Resource", notes = "Create Crud Operation", response = Organization.class)
 	public ResponseEntity<?> storeOrganizationDetials(@Valid @RequestBody Organization org,
 			BindingResult bindingResult) {
 		ResponseEntity<?> errorMap = mapStateToError.errorMapState(bindingResult);
@@ -54,9 +55,9 @@ public class OrganizationController {
 		return new ResponseEntity<String>(jsonInString, HttpStatus.OK);
 	}
 
-	@RequestMapping(path = "/get/{id}", method = RequestMethod.GET, produces = "application/json", consumes = "application/json")
+	@RequestMapping(path = "/get/{id}", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
-	@ApiOperation(value = "/get/id", notes = "Retrieve Organization Details By ID", response = Organization.class)
+	@ApiOperation(value = "Retrieve Organization Resource By ID", notes = "Retrieve Organization Details By ID")
 	public ResponseEntity<?> getOrganizationById(
 			@ApiParam(value = "id", required = true) @PathVariable(value = "id") Long id) {
 
@@ -71,7 +72,7 @@ public class OrganizationController {
 		return new ResponseEntity<String>(jsonString, HttpStatus.OK);
 	}
 
-	@RequestMapping(path = "/get", method = RequestMethod.GET, consumes = "application/json", produces = "application/json")
+	@RequestMapping(path = "/get", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
 	@ApiOperation(value = "/get", notes = "Retrieve All organization From The DB", response = Organization.class, responseContainer = "LIST")
 	public ResponseEntity<?> getAllOrganizationDetails() {
@@ -85,9 +86,9 @@ public class OrganizationController {
 		return new ResponseEntity<String>(gsonString, HttpStatus.OK);
 	}
 
-	@RequestMapping(path = "/delete/{id}", method = RequestMethod.DELETE, consumes = "application/json", produces = "application/json")
+	@RequestMapping(path = "/delete/{id}", method = RequestMethod.DELETE)
 	@ResponseBody
-	@ApiOperation(value = "/delete", notes = "Could Not Delete From The DB", response = String.class)
+	@ApiOperation(value = "Remove Organization Resource By ID", notes = "Could Not Delete From The DB", response = String.class)
 	public ResponseEntity<?> deleteOrganizationById(
 			@ApiParam(value = "id", required = true) @PathVariable(value = "id") Long id) {
 

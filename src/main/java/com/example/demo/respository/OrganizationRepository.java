@@ -26,7 +26,12 @@ public interface OrganizationRepository extends JpaRepository<Organization, Long
 	@Query("Select Organization from #{#entityName} Organization where isDeleted = ?1")
 	public List<Organization> getAllOrganization(boolean b);
 
-	@Query("Select Organization from #{#entityName} Organization where isDeleted = false and email=?1 and phoneNumber = ?2 and website=?3")
-	public Organization duplicateCheck(String email, String phoneNumber, String website);
+	@Query("Select Organization from #{#entityName} Organization where email=?1 and phoneNumber = ?2 and website=?3 and isDeleted=?4")
+	public Organization duplicateCheck(String email, String phoneNumber, String website, boolean b);
+
+	// @Query("Select Organization from #{#entityName} Organization where isDeleted
+	// = false and email=?1 and phoneNumber = ?2 and website=?3")
+	// public Organization duplicateCheck(String email, String phoneNumber, String
+	// website);
 
 }
