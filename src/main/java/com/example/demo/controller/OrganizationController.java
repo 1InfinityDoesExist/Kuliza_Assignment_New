@@ -57,15 +57,14 @@ public class OrganizationController {
 
 	@RequestMapping(path = "/get/{id}", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
-	@ApiOperation(value = "Retrieve Organization Resource By ID", notes = "Retrieve Organization Details By ID")
+	@ApiOperation(value = "Retrieve Organization Resource By ID", notes = "Retrieve Organization Details By ID", response = Organization.class)
 	public ResponseEntity<?> getOrganizationById(
 			@ApiParam(value = "id", required = true) @PathVariable(value = "id") Long id) {
 
 		logger.info("**********************Inside Organization Get Method******************************");
 		Organization orgFromDB = organizationService.getOrganizationByID(id);
 		if (orgFromDB == null) {
-			return new ResponseEntity<String>("Sorry No Data Can Be Retrieved From This Id: " + id,
-					HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<String>("Sorry No Data Found", HttpStatus.BAD_REQUEST);
 		}
 		Gson gson = new Gson();
 		String jsonString = gson.toJson(orgFromDB);
@@ -74,11 +73,11 @@ public class OrganizationController {
 
 	@RequestMapping(path = "/get", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
-	@ApiOperation(value = "/get", notes = "Retrieve All organization From The DB", response = Organization.class, responseContainer = "LIST")
+	@ApiOperation(value = "Retrieve All Organization Resource", notes = "Retrieve All organization From The DB", response = Organization.class, responseContainer = "LIST")
 	public ResponseEntity<?> getAllOrganizationDetails() {
 		List<Organization> orgListFromDB = organizationService.getAllOrganization();
 		if (orgListFromDB.size() == 0 || orgListFromDB == null) {
-			return new ResponseEntity<String>(" Sorry Not Data Found ", HttpStatus.BAD_REQUEST);
+			return new ResponseEntity<String>("Sorry Not Data Found ", HttpStatus.BAD_REQUEST);
 		}
 
 		Gson gson = new Gson();
@@ -86,18 +85,21 @@ public class OrganizationController {
 		return new ResponseEntity<String>(gsonString, HttpStatus.OK);
 	}
 
-	@RequestMapping(path = "/delete/{id}", method = RequestMethod.DELETE)
+	@RequestMapping(path = "/delete/{id}", method = RequestMethod.DELETE, produces = "text/plain")
 	@ResponseBody
-	@ApiOperation(value = "Remove Organization Resource By ID", notes = "Could Not Delete From The DB", response = String.class)
+	@ApiOperation(value = "Remove Organization Resource By ID", notes = "Remove Organization From The DB Using Specific Id", response = String.class)
 	public ResponseEntity<?> deleteOrganizationById(
 			@ApiParam(value = "id", required = true) @PathVariable(value = "id") Long id) {
 
 		ResponseEntity<?> responseString = getOrganizationById(id);
 		String org = (String) responseString.getBody();
-		Organization orgFromDB = new Gson().fromJson(org, Organization.class);
-		if (orgFromDB == null) {
+		if (org.equals("Sorry No Data Found")) {
 			return new ResponseEntity<String>("Sorry Org with id:- " + id + " does Not Exist", HttpStatus.BAD_REQUEST);
 		}
+		logger.info("org value:-" + org);
+		Organization orgFromDB = new Gson().fromJson(org, Organization.class);
+		logger.info("orgFromDB:-" + orgFromDB);
+		// No need check for orgFromDB over here
 
 		String response = organizationService.deleteOrgByID(id);
 		if (response == null) {
