@@ -1,16 +1,13 @@
 package com.example.demo.service;
 
-import javax.transaction.Transactional;
-import javax.validation.Valid;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.example.demo.exception.EmilAlreadyExistException;
-import com.example.demo.exception.PhoneNumberAlreadyExistException;
-import com.example.demo.exception.WebsiteAlreadyExistException;
+import com.example.demo.exception.BaseException;
 import com.example.demo.model.Organization;
 import com.example.demo.respository.OrganizationRepository;
 
@@ -21,60 +18,52 @@ public class OrganizationService {
 	@Autowired
 	private OrganizationRepository organizationRepository;
 
-	
 	public Organization createOrganization(Organization org) {
 		// TODO Auto-generated method stub
 		try {
 
-			Organization orgEmail = organizationRepository.getOrgByEmail(org.getEmail());
-			Organization orgPhone = organizationRepository.getOrgByPhone(org.getPhoneNumber());
-			Organization orgWebsite = organizationRepository.getOrgByWebsite(org.getWebsite());
+			Organization duplicateCheck = organizationRepository.duplicateCheck(org.getEmail(), org.getPhoneNumber(),
+					org.getWebsite());
+			if (duplicateCheck != null) {
+				throw new BaseException("Duplicate Value Found");
+			}
+			Organization persistedOrg = organizationRepository.save(org);
+			return persistedOrg;
 
-			logger.info("*************************** Email " + orgEmail);
-			logger.info("**************************** Phone " + orgPhone);
-			logger.info(" ***************************Website" + orgWebsite);
+		} catch (final BaseException ex) {
+			throw new BaseException(ex.getMessage());
+		}
+	}
 
-			if (orgEmail != null && orgPhone != null && orgWebsite != null) {
-				throw new EmilAlreadyExistException(
-						"Exception Caught :- All three email , phoneNumber and website already exist in the database");
-			}
-			if (orgEmail != null && orgPhone != null) {
-				throw new EmilAlreadyExistException("Exception Caught:-  Email and PhoneNumber already exist in the database");
-			}
+	// To be asked
+	public Organization getOrganizationByID(Long id) {
+		try {
+			Organization org = organizationRepository.getOrganizationById(id, false);
+			return org;
+		} catch (final Exception ex) {
+			throw new BaseException("Sorry Error Retrieving Data From DB");
+		}
+	}
 
-			if (orgEmail != null && orgWebsite != null) {
-				throw new EmilAlreadyExistException(" Exception Caught:- Email and Website already exist in the database");
-			}
+	public List<Organization> getAllOrganization() {
+		// TODO Auto-generated method stub
+		try {
+			List<Organization> orgList = organizationRepository.getAllOrganization(false);
+			logger.info(" logger : " + orgList);
+			return orgList;
+		} catch (final Exception ex) {
+			throw new BaseException("Sorry Could Not Retrieve Data From The Server");
+		}
+	}
 
-			if (orgPhone != null && orgWebsite != null) {
-				throw new EmilAlreadyExistException("Exception Caught:- Phone and Website already exist in the database");
-			}
-
-			if (orgEmail != null) {
-				throw new EmilAlreadyExistException(" Exception :- Duplicate Email Id Found In The DB");
-			}
-
-			if (orgPhone != null) {
-				throw new PhoneNumberAlreadyExistException("Exception Caught:- TelephoneNumber already Exist");
-			}
-			if (orgWebsite != null) {
-				throw new WebsiteAlreadyExistException(
-						" Exception Caught:- Website " + org.getWebsite() + "  " + " already Exsit in the DB");
-			}
-			Organization orgToDB = organizationRepository.save(org);
-			return orgToDB;
-		} catch (final EmilAlreadyExistException ex) {
-			logger.error("********************************************");
-			throw new EmilAlreadyExistException(ex.getMessage());
-		} catch (final WebsiteAlreadyExistException ex) {
-			logger.error("******************Website Exception********************");
-			throw new WebsiteAlreadyExistException(
-					" Exception Caught:- Website " + org.getWebsite() + "  " + " already Exsit in the DB");
-		} catch (final PhoneNumberAlreadyExistException ex) {
-			logger.error("*********Exception PhoneNumber Exception************************");
-			throw new PhoneNumberAlreadyExistException("Exception Caught:- TelephoneNumber already Exist");
-		} finally {
-			logger.info(" *************End of createOrganization method of class OrganizationService**************");
+	public String deleteOrgByID(Long id) {
+		// TODO Auto-generated method stub
+		try {
+			organizationRepository.deleteOrganizationByID(id);// what if the isDeletedFlag is not updated
+			throw new BaseException("Database Connect Broke");
+			// return "Success";
+		} catch (final BaseException ex) {
+			throw new BaseException("Sorry Could Not Delete Data From The Server");
 		}
 	}
 

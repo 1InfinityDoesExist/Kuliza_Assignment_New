@@ -29,4 +29,10 @@ public class RuntimeExceptionHandler extends ResponseEntityExceptionHandler {
 		PhoneNumberAlreadyExistResponse response = new PhoneNumberAlreadyExistResponse(ex.getMessage());
 		return new ResponseEntity(response, HttpStatus.BAD_REQUEST);
 	}
+
+	@ExceptionHandler
+	public ResponseEntity<?> baseExceptionHandler(BaseException ex, WebRequest webRequest) {
+		BaseExceptionResponse response = new BaseExceptionResponse(ex.getMessage());
+		return new ResponseEntity(response, HttpStatus.BAD_REQUEST);
+	}
 }
