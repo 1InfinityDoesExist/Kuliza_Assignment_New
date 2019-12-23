@@ -1,20 +1,45 @@
 package com.example.demo.service;
 
+import java.lang.reflect.InvocationTargetException;
+import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
+import javax.annotation.PostConstruct;
+
+import org.json.simple.JSONObject;
+import org.json.simple.parser.JSONParser;
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.example.demo.exception.BaseException;
+import com.example.demo.model.Address;
 import com.example.demo.model.Organization;
 import com.example.demo.respository.OrganizationRepository;
+import com.example.demo.utility.ReflectionUtil;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 
 @Service
 public class OrganizationService {
 
 	private static final Logger logger = LoggerFactory.getLogger(OrganizationService.class);
+
+	ReflectionUtil refUtil = ReflectionUtil.getInstance();
+
+	@Autowired
+	private ObjectMapper objectMapper;
+
+	@PostConstruct
+	public void setUp() {
+		objectMapper.registerModule(new JavaTimeModule());
+	}
+
 	@Autowired
 	private OrganizationRepository organizationRepository;
 
@@ -65,6 +90,49 @@ public class OrganizationService {
 		} catch (final BaseException ex) {
 			throw new BaseException("Sorry Could Not Delete Data From The Server");
 		}
+	}
+
+	public Organization updateOrganization(String organization, Long id)
+			throws JsonMappingException, JsonProcessingException, ParseException, IllegalAccessException,
+			IllegalArgumentException, InvocationTargetException {
+		// TODO Auto-generated method stub
+		Organization organizationFromDB = getOrganizationByID(id);
+		if (organizationFromDB == null) {
+			throw new BaseException("Sorry No Data Found For This Id:" + id);
+		}
+		JSONParser parser = new JSONParser();
+		Organization orgFromPayload = objectMapper.readValue(organization, Organization.class);
+
+		try {
+			JSONObject obj = (JSONObject) parser.parse(organization);
+			for (Iterator iterator = ((Map<String, String>) obj).keySet().iterator(); iterator.hasNext();) {
+				String propName = (String) iterator.next();
+				if (propName.equals("address")) {
+					if (obj.get("address") != null) {
+						JSONObject addObject = (JSONObject) obj.get("address");
+						if (organizationFromDB.getAddress() == null) {
+							organizationFromDB.setAddress(new Address());
+						}
+						for (Object src : addObject.keySet()) {
+							String addPropName = (String) src;
+							refUtil.getSetterMethod("Address", addPropName).invoke(organizationFromDB.getAddress(),
+									addObject.get(addPropName));
+						}
+					} else {
+						organizationFromDB.setAddress(null);
+					}
+
+				} else {
+					refUtil.getSetterMethod("Organization", propName).invoke(organizationFromDB, obj.get(propName));
+				}
+			}
+
+		} catch (final BaseException ex) {
+			logger.info(ex.getMessage());
+		}
+
+		Organization updatedOrg = organizationRepository.save(organizationFromDB);
+		return updatedOrg;
 	}
 
 }

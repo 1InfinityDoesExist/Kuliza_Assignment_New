@@ -1,9 +1,11 @@
 package com.example.demo.controller;
 
+import java.lang.reflect.InvocationTargetException;
 import java.util.List;
 
 import javax.validation.Valid;
 
+import org.json.simple.parser.ParseException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -15,11 +17,14 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
+import org.springframework.web.bind.annotation.ResponseStatus;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.example.demo.model.Organization;
 import com.example.demo.service.MapStateToError;
 import com.example.demo.service.OrganizationService;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.google.gson.Gson;
 
 import io.swagger.annotations.Api;
@@ -41,6 +46,7 @@ public class OrganizationController {
 
 	@RequestMapping(path = "/create", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
 	@ResponseBody
+	@ResponseStatus(HttpStatus.CREATED)
 	@ApiOperation(value = "Create Organization Resource", notes = "Create Crud Operation", response = Organization.class)
 	public ResponseEntity<?> storeOrganizationDetials(@Valid @RequestBody Organization org,
 			BindingResult bindingResult) {
@@ -57,6 +63,7 @@ public class OrganizationController {
 
 	@RequestMapping(path = "/get/{id}", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Retrieve Organization Resource By ID", notes = "Retrieve Organization Details By ID", response = Organization.class)
 	public ResponseEntity<?> getOrganizationById(
 			@ApiParam(value = "id", required = true) @PathVariable(value = "id") Long id) {
@@ -87,6 +94,7 @@ public class OrganizationController {
 
 	@RequestMapping(path = "/delete/{id}", method = RequestMethod.DELETE, produces = "text/plain")
 	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Remove Organization Resource By ID", notes = "Remove Organization From The DB Using Specific Id", response = String.class)
 	public ResponseEntity<?> deleteOrganizationById(
 			@ApiParam(value = "id", required = true) @PathVariable(value = "id") Long id) {
@@ -106,7 +114,25 @@ public class OrganizationController {
 			return new ResponseEntity<String>(" Sorry Could Not Remove Org Resource From The Data", HttpStatus.OK);
 		}
 		return new ResponseEntity<String>("SuccessFully Deleted Organization with ID:- " + id, HttpStatus.OK);
+	}
 
+	@RequestMapping(path = "/update/{id}", method = RequestMethod.PATCH, consumes = "application/json", produces = "application/json")
+	@ResponseBody
+	@ResponseStatus(HttpStatus.OK)
+	@ApiOperation(value = "Update Organizain Resource", notes = "Its Just A Partial Update", response = Organization.class)
+	public ResponseEntity<?> updateOrganization(@RequestBody String organization, @PathVariable(value = "id") Long id)
+			throws JsonMappingException, JsonProcessingException, IllegalAccessException, IllegalArgumentException,
+			InvocationTargetException, ParseException {
+
+		Organization organizationFromDB = organizationService.updateOrganization(organization, id);
+		if (organizationFromDB == null) {
+			return new ResponseEntity<String>("Sorry Could Not Update The Organization with id:" + id,
+					HttpStatus.BAD_REQUEST);
+		}
+
+		Gson gson = new Gson();
+		String gsonString = gson.toJson(organizationFromDB);
+		return new ResponseEntity<String>(gsonString, HttpStatus.OK);
 	}
 
 }

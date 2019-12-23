@@ -31,7 +31,7 @@ public class ReflectionUtil {
 
 	private static HashMap<String, String> objectBeanMap = new HashMap<String, String>() {
 		{
-			put("", "");
+			put("Organization", "com.example.demo.respository.Organization");
 		}
 	};
 
