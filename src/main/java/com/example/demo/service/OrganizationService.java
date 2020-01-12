@@ -116,7 +116,7 @@ public class OrganizationService {
 						for (Object src : addObject.keySet()) {
 							String addPropName = (String) src;
 							refUtil.getSetterMethod("Address", addPropName).invoke(organizationFromDB.getAddress(),
-									addObject.get(addPropName));
+									addObject.get(addPropName)); 
 						}
 					} else {
 						organizationFromDB.setAddress(null);

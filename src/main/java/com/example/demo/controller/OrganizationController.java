@@ -47,7 +47,7 @@ public class OrganizationController {
 	@RequestMapping(path = "/create", method = RequestMethod.POST, consumes = "application/json", produces = "application/json")
 	@ResponseBody
 	@ResponseStatus(HttpStatus.CREATED)
-	@ApiOperation(value = "Create Organization Resource", notes = "Create Crud Operation", response = Organization.class)
+	@ApiOperation(value = "Create Organization Resource", notes = "You Must Provide Org Object", response = Organization.class)
 	public ResponseEntity<?> storeOrganizationDetials(@Valid @RequestBody Organization org,
 			BindingResult bindingResult) {
 		ResponseEntity<?> errorMap = mapStateToError.errorMapState(bindingResult);
@@ -64,9 +64,9 @@ public class OrganizationController {
 	@RequestMapping(path = "/get/{id}", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
 	@ResponseStatus(HttpStatus.OK)
-	@ApiOperation(value = "Retrieve Organization Resource By ID", notes = "Retrieve Organization Details By ID", response = Organization.class)
+	@ApiOperation(value = "/get/{id}", notes = "Retrieve Organization Details By ID", response = Organization.class)
 	public ResponseEntity<?> getOrganizationById(
-			@ApiParam(value = "id", required = true) @PathVariable(value = "id") Long id) {
+			@ApiParam(value = "id", required = true, example = "123") @PathVariable(value = "id") Long id) {
 
 		logger.info("**********************Inside Organization Get Method******************************");
 		Organization orgFromDB = organizationService.getOrganizationByID(id);
@@ -80,7 +80,7 @@ public class OrganizationController {
 
 	@RequestMapping(path = "/get", method = RequestMethod.GET, produces = "application/json")
 	@ResponseBody
-	@ApiOperation(value = "Retrieve All Organization Resource", notes = "Retrieve All organization From The DB", response = Organization.class, responseContainer = "LIST")
+	@ApiOperation(value = "/get", notes = "Retrieve All organization From The DB", response = Organization.class, responseContainer = "LIST")
 	public ResponseEntity<?> getAllOrganizationDetails() {
 		List<Organization> orgListFromDB = organizationService.getAllOrganization();
 		if (orgListFromDB.size() == 0 || orgListFromDB == null) {
@@ -97,7 +97,7 @@ public class OrganizationController {
 	@ResponseStatus(HttpStatus.OK)
 	@ApiOperation(value = "Remove Organization Resource By ID", notes = "Remove Organization From The DB Using Specific Id", response = String.class)
 	public ResponseEntity<?> deleteOrganizationById(
-			@ApiParam(value = "id", required = true) @PathVariable(value = "id") Long id) {
+			@ApiParam(value = "id", required = true, example = "1254") @PathVariable(value = "id") Long id) {
 
 		ResponseEntity<?> responseString = getOrganizationById(id);
 		String org = (String) responseString.getBody();
